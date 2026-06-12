@@ -2,15 +2,38 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Para Andrea</title>
+    <title>Para mi lunita</title>
     <style>
-        body { text-align: center; font-family: sans-serif; background-color: #ffe6f2; padding-top: 50px; }
-        h1 { color: #d63384; padding: 20px; }
-        img { width: 400px; border-radius: 20px; margin-top: 20px; }
+        body { 
+            text-align: center; 
+            font-family: 'Arial', sans-serif; 
+            background-image: url('https://www.transparenttextures.com/patterns/lemon-drops.png'), radial-gradient(#fff9c4, #fbc02d);
+            padding: 50px 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+        /* Definimos la animación */
+        @keyframes aparecer {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .contenedor {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 30px;
+            display: inline-block;
+            max-width: 800px;
+            /* Aplicamos la animación */
+            animation: aparecer 2s ease-out;
+        }
+        h1 { color: #d32f2f; line-height: 1.6; }
+        img { width: 400px; border-radius: 20px; margin-top: 20px; border: 5px solid white; }
     </style>
 </head>
 <body>
-    <h1>Te amo mucho mi bebe estoy muy orgulloso de ti me haces el hombre mas feliz del mundo espositos por siempre</h1>
-    <img src="https://img.freepik.com/foto-premium/rata-negra-limon-fondo-blanco_118019-3221.jpg" alt="Rata y limon">
+    <div class="contenedor">
+        <h1>Mi bebe estoy muy orgulloso de ute, realmente no tengo palabras para decirte y expresarte lo mucho que te amo eres el amor de mi vida, mi reina, mi mujer, mi todo, mi lunita, mi Mandy, vamos por mucho mas Tiquitona y jamas olvides que eres la mejor novia de todos los versos</h1>
+        <img src="https://img.freepik.com/foto-premium/rata-negra-limon-fondo-blanco_118019-3221.jpg" alt="Rata y limon">
+    </div>
 </body>
 </html>
