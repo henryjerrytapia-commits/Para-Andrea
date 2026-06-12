@@ -32,10 +32,9 @@
 
         document.body.addEventListener('click', () => { bgMusic.play(); }, { once: true });
 
-        let score = 0, lives = 5, isGameOver = false, animFrame = 0;
+        let score = 0, lives = 5, isGameOver = false;
         let player = { x: 375, y: 430, w: 60, h: 45 };
         let items = [], bombs = [];
-        let limonaX = 850, limonaY = 430;
 
         document.addEventListener('keydown', (e) => {
             if(!isGameOver) {
@@ -55,27 +54,18 @@
         }
 
         function update() {
-            if(isGameOver) {
-                ctx.clearRect(0, 0, 800, 500);
-                drawRat(player.x, player.y);
-                if(limonaX > player.x + 60) limonaX -= 2;
-                ctx.fillStyle = '#ffd600'; ctx.beginPath(); ctx.ellipse(limonaX, limonaY, 20, 30, 0, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#795548'; ctx.fillRect(limonaX-15, limonaY-30, 30, 20);
-                
-                ctx.fillStyle = "white"; ctx.font = "40px Arial";
-                ctx.fillText("¡CASADOS!", 300, 200);
-                ctx.fillStyle = "#f44336"; ctx.font = "60px Arial";
-                ctx.fillText("❤️", 360, 260);
-                requestAnimationFrame(update);
-                return;
-            }
+            if(isGameOver) return;
 
             ctx.clearRect(0, 0, 800, 500);
-            if(score == 10) msgDiv.textContent = "¡Tú puedes Tiquitona, eres genial!";
-            if(score == 20) msgDiv.textContent = "¡Eres la mejor!";
-            if(score == 30) msgDiv.textContent = "¡Estás muy cerca!";
-            if(score == 40) msgDiv.textContent = "¡Solo 10 más!";
 
+            // Mensajes según puntaje
+            if(score == 10) msgDiv.textContent = "¡Tú puedes Tiquitona, eres genial!";
+            else if(score == 20) msgDiv.textContent = "¡Eres la mejor!";
+            else if(score == 30) msgDiv.textContent = "¡Estás muy cerca!";
+            else if(score == 40) msgDiv.textContent = "¡Solo 10 más!";
+
+            // Lógica Limones
+            if(Math.random() < 0.03) items.push({x: Math.random()*770, y: 0});
             items.forEach((item, i) => {
                 item.y += 4;
                 ctx.fillStyle = '#ffd600'; ctx.beginPath(); ctx.ellipse(item.x, item.y, 12, 18, 0, 0, Math.PI*2); ctx.fill();
@@ -85,6 +75,8 @@
                 } else if(item.y > 500) items.splice(i, 1);
             });
 
+            // Lógica Bombas (Solo tocan bombas)
+            if(Math.random() < 0.015) bombs.push({x: Math.random()*770, y: 0});
             bombs.forEach((bomb, i) => {
                 bomb.y += 6;
                 ctx.fillStyle = '#616161'; ctx.beginPath(); ctx.arc(bomb.x, bomb.y, 15, 0, Math.PI*2); ctx.fill();
@@ -95,12 +87,15 @@
                 } else if(bomb.y > 500) bombs.splice(i, 1);
             });
 
-            if(Math.random() < 0.03) items.push({x: Math.random()*770, y: 0});
-            if(Math.random() < 0.015) bombs.push({x: Math.random()*770, y: 0});
-
             drawRat(player.x, player.y);
-            if(score < 50) requestAnimationFrame(update);
-            else isGameOver = true;
+
+            if(score >= 50) {
+                isGameOver = true;
+                ctx.fillStyle = "white"; ctx.font = "30px Courier New";
+                ctx.fillText("¡Felicitaciones! ¡Abundio y Limoncito se han casado!", 20, 250);
+            } else {
+                requestAnimationFrame(update);
+            }
         }
         update();
     </script>
