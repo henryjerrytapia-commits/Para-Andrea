@@ -58,14 +58,11 @@
 
             ctx.clearRect(0, 0, 800, 500);
 
-            // Mensajes según puntaje
             if(score == 10) msgDiv.textContent = "¡Tú puedes Tiquitona, eres genial!";
             else if(score == 20) msgDiv.textContent = "¡Eres la mejor!";
             else if(score == 30) msgDiv.textContent = "¡Estás muy cerca!";
             else if(score == 40) msgDiv.textContent = "¡Solo 10 más!";
 
-            // Lógica Limones
-            if(Math.random() < 0.03) items.push({x: Math.random()*770, y: 0});
             items.forEach((item, i) => {
                 item.y += 4;
                 ctx.fillStyle = '#ffd600'; ctx.beginPath(); ctx.ellipse(item.x, item.y, 12, 18, 0, 0, Math.PI*2); ctx.fill();
@@ -75,8 +72,6 @@
                 } else if(item.y > 500) items.splice(i, 1);
             });
 
-            // Lógica Bombas (Solo tocan bombas)
-            if(Math.random() < 0.015) bombs.push({x: Math.random()*770, y: 0});
             bombs.forEach((bomb, i) => {
                 bomb.y += 6;
                 ctx.fillStyle = '#616161'; ctx.beginPath(); ctx.arc(bomb.x, bomb.y, 15, 0, Math.PI*2); ctx.fill();
@@ -87,12 +82,17 @@
                 } else if(bomb.y > 500) bombs.splice(i, 1);
             });
 
+            if(Math.random() < 0.03) items.push({x: Math.random()*770, y: 0});
+            if(Math.random() < 0.015) bombs.push({x: Math.random()*770, y: 0});
+
             drawRat(player.x, player.y);
 
             if(score >= 50) {
                 isGameOver = true;
-                ctx.fillStyle = "white"; ctx.font = "30px Courier New";
-                ctx.fillText("¡Felicitaciones! ¡Abundio y Limoncito se han casado!", 20, 250);
+                ctx.fillStyle = "white"; 
+                ctx.font = "24px Courier New"; // Fuente un poco más pequeña para que quepa todo
+                ctx.textAlign = "center";
+                ctx.fillText("¡FELICITACIONES! ADBUNDIO Y LIMONCITO SE CASARON", 400, 250);
             } else {
                 requestAnimationFrame(update);
             }
