@@ -32,14 +32,16 @@
 
         document.body.addEventListener('click', () => { bgMusic.play(); }, { once: true });
 
-        let score = 0, lives = 5, isGameOver = false;
+        let score = 0, lives = 5, isGameOver = false, animFrame = 0;
         let player = { x: 375, y: 430, w: 60, h: 45 };
         let items = [], bombs = [];
-        let limonaX = 700, limonaY = 400;
+        let limonaX = 850, limonaY = 430;
 
         document.addEventListener('keydown', (e) => {
-            if(e.key === 'ArrowRight' && player.x < 740) player.x += 40;
-            if(e.key === 'ArrowLeft' && player.x > 0) player.x -= 40;
+            if(!isGameOver) {
+                if(e.key === 'ArrowRight' && player.x < 740) player.x += 40;
+                if(e.key === 'ArrowLeft' && player.x > 0) player.x -= 40;
+            }
         });
 
         function drawRat(x, y) {
@@ -59,8 +61,11 @@
                 if(limonaX > player.x + 60) limonaX -= 2;
                 ctx.fillStyle = '#ffd600'; ctx.beginPath(); ctx.ellipse(limonaX, limonaY, 20, 30, 0, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#795548'; ctx.fillRect(limonaX-15, limonaY-30, 30, 20);
-                ctx.fillStyle = "white"; ctx.font = "30px Arial";
-                ctx.fillText("¡FELICITACIONES, TIQUITONA!", 200, 200);
+                
+                ctx.fillStyle = "white"; ctx.font = "40px Arial";
+                ctx.fillText("¡CASADOS!", 300, 200);
+                ctx.fillStyle = "#f44336"; ctx.font = "60px Arial";
+                ctx.fillText("❤️", 360, 260);
                 requestAnimationFrame(update);
                 return;
             }
@@ -71,32 +76,27 @@
             if(score == 30) msgDiv.textContent = "¡Estás muy cerca!";
             if(score == 40) msgDiv.textContent = "¡Solo 10 más!";
 
-            // Lógica Limones (SOLO dan puntos)
-            if(Math.random() < 0.03) items.push({x: Math.random()*770, y: 0});
             items.forEach((item, i) => {
                 item.y += 4;
                 ctx.fillStyle = '#ffd600'; ctx.beginPath(); ctx.ellipse(item.x, item.y, 12, 18, 0, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#4caf50'; ctx.fillRect(item.x, item.y-18, 4, 8);
-                
-                // Colisión solo para limones
                 if(item.x > player.x && item.x < player.x+60 && item.y > player.y && item.y < player.y + 45) {
                     score++; scoreSpan.textContent = score; items.splice(i, 1);
                 } else if(item.y > 500) items.splice(i, 1);
             });
 
-            // Lógica Bombas (SOLO quitan vidas)
-            if(Math.random() < 0.015) bombs.push({x: Math.random()*770, y: 0});
             bombs.forEach((bomb, i) => {
                 bomb.y += 6;
                 ctx.fillStyle = '#616161'; ctx.beginPath(); ctx.arc(bomb.x, bomb.y, 15, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#ff9800'; ctx.fillRect(bomb.x, bomb.y-25, 4, 10);
-                
-                // Colisión solo para bombas
                 if(bomb.x > player.x-10 && bomb.x < player.x+70 && bomb.y > player.y && bomb.y < player.y+45) {
                     lives--; heartsDiv.textContent = '❤️'.repeat(lives); bombs.splice(i, 1);
                     if(lives <= 0) location.reload();
                 } else if(bomb.y > 500) bombs.splice(i, 1);
             });
+
+            if(Math.random() < 0.03) items.push({x: Math.random()*770, y: 0});
+            if(Math.random() < 0.015) bombs.push({x: Math.random()*770, y: 0});
 
             drawRat(player.x, player.y);
             if(score < 50) requestAnimationFrame(update);
