@@ -2,37 +2,211 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Para mi lunita</title>
+    <title>¡El Gran Juego del Amor Tiquitón!</title>
     <style>
         body { 
             text-align: center; 
             font-family: 'Arial', sans-serif; 
-            background-image: url('https://www.transparenttextures.com/patterns/lemon-drops.png'), radial-gradient(#fff9c4, #fbc02d);
-            padding: 50px 20px;
+            background-color: #fce4ec; /* Un rosa pastel suave */
+            padding: 20px;
             margin: 0;
-            min-height: 100vh;
+            overflow: hidden; /* Para que el canvas ocupe todo el espacio */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        @keyframes aparecer {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        h1 { color: #880e4f; margin-bottom: 10px; }
+
+        #score {
+            font-size: 24px;
+            color: #d32f2f;
+            font-weight: bold;
+            margin-bottom: 20px;
         }
-        .contenedor {
-            background-color: rgba(255, 255, 255, 0.9);
+
+        /* Estilo del lienzo del juego */
+        #gameCanvas {
+            border: 5px solid white;
+            border-radius: 20px;
+            background-color: #f9fbe7; /* Fondo del área de juego */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Contenedor para el mensaje final */
+        #finalMessage {
+            display: none; /* Oculto al principio */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.95);
             padding: 40px;
             border-radius: 30px;
-            display: inline-block;
-            max-width: 800px;
-            animation: aparecer 2s ease-out;
+            text-align: center;
+            border: 5px solid #d32f2f;
+            z-index: 100;
         }
-        h1 { color: #d32f2f; line-height: 1.6; }
-        img { width: 400px; border-radius: 20px; margin-top: 20px; border: 5px solid white; }
+
+        #finalImage {
+            max-width: 400px;
+            border-radius: 20px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <div class="contenedor">
-        <h1>Mi bebe estoy muy orgulloso de ute, realmente no tengo palabras para decirte y expresarte lo mucho que te amo eres el amor de mi vida, mi reina, mi mujer, mi todo, mi lunita, mi Mandy, vamos por mucho mas Tiquitona y jamas olvides que eres la mejor novia de todos los versos</h1>
-        <!-- Nueva imagen -->
-        <img src="https://pics.craiyon.com/2024-09-22/yyGWIDkUQ0-n3iiyg8JJ4Q.webp" alt="Imagen especial para Andrea">
+    <h1>¡Recolecta 100 limones, Tiquitón!</h1>
+    <div id="score">Limones: <span id="scoreNum">0</span></div>
+
+    <!-- El lienzo del juego -->
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+
+    <!-- El mensaje y la imagen final (aparecen al llegar a 100) -->
+    <div id="finalMessage">
+        <h2>¡Felicidades, lograste el amor eterno!</h2>
+        <p>Mi bebe estoy muy orgulloso de ute, realmente no tengo palabras para decirte y expresarte lo mucho que te amo eres el amor de mi vida, mi reina, mi mujer, mi todo, mi lunita, mi Mandy, vamos por mucho mas Tiquitona y jamas olvides que eres la mejor novia de todos los versos.</p>
+        <!-- Tu imagen especial de la rata con limón -->
+        <img id="finalImage" src="https://pics.craiyon.com/2024-09-22/yyGWIDkUQ0-n3iiyg8JJ4Q.webp" alt="Amor Eterno">
     </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreSpan = document.getElementById('scoreNum');
+        const finalMessage = document.getElementById('finalMessage');
+
+        // Variables del juego
+        let score = 0;
+        let playerWidth = 50;
+        let playerHeight = 50;
+        let playerX = (canvas.width - playerWidth) / 2;
+        let playerY = canvas.height - playerHeight - 10;
+        let playerSpeed = 8;
+        let isGameOver = false;
+
+        let items = [];
+        let itemWidth = 30;
+        let itemHeight = 30;
+        let itemSpeed = 3;
+
+        // Controles del teclado
+        let rightPressed = false;
+        let leftPressed = false;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Right') rightPressed = true;
+            if (e.key === 'ArrowLeft' || e.key === 'Left') leftPressed = true;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Right') rightPressed = false;
+            if (e.key === 'ArrowLeft' || e.key === 'Left') leftPressed = false;
+        });
+
+        // Función para dibujar la ratita (como un triángulo rosa)
+        function drawPlayer() {
+            ctx.beginPath();
+            ctx.rect(playerX, playerY, playerWidth, playerHeight);
+            ctx.fillStyle = '#f48fb1'; // Color rosa ratita
+            ctx.fill();
+            ctx.closePath();
+            // Dibujar ojitos para que parezca una ratita
+            ctx.beginPath();
+            ctx.arc(playerX + 15, playerY + 15, 3, 0, Math.PI * 2);
+            ctx.arc(playerX + 35, playerY + 15, 3, 0, Math.PI * 2);
+            ctx.fillStyle = 'black';
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Función para crear nuevos limones
+        function spawnItem() {
+            const newX = Math.random() * (canvas.width - itemWidth);
+            items.push({ x: newX, y: 0 });
+        }
+
+        // Función para dibujar los limones (como círculos amarillos)
+        function drawItems() {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                ctx.beginPath();
+                ctx.arc(item.x + itemWidth / 2, item.y + itemHeight / 2, itemWidth / 2, 0, Math.PI * 2);
+                ctx.fillStyle = '#fbc02d'; // Color limón
+                ctx.fill();
+                ctx.closePath();
+                // Dibujar una hojita verde para que sepa que es un limón
+                ctx.beginPath();
+                ctx.moveTo(item.x + itemWidth / 2, item.y + itemHeight / 2 - 5);
+                ctx.lineTo(item.x + itemWidth / 2 + 5, item.y + itemHeight / 2 - 15);
+                ctx.strokeStyle = 'green';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.closePath();
+            }
+        }
+
+        // Función principal de actualización del juego
+        function draw() {
+            if (isGameOver) return;
+
+            // Borrar el canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Mover al jugador
+            if (rightPressed && playerX < canvas.width - playerWidth) {
+                playerX += playerSpeed;
+            } else if (leftPressed && playerX > 0) {
+                playerX -= playerSpeed;
+            }
+
+            // Actualizar limones (mover y recolectar)
+            for (let i = 0; i < items.length; i++) {
+                items[i].y += itemSpeed;
+
+                // Colisión (recolectar)
+                if (
+                    items[i].x < playerX + playerWidth &&
+                    items[i].x + itemWidth > playerX &&
+                    items[i].y < playerY + playerHeight &&
+                    items[i].y + itemHeight > playerY
+                ) {
+                    items.splice(i, 1); // Quitar el limón
+                    score++;
+                    scoreSpan.textContent = score;
+                    i--; // Ajustar índice después de eliminar
+                    continue;
+                }
+
+                // Limones que caen fuera de la pantalla
+                if (items[i].y > canvas.height) {
+                    items.splice(i, 1);
+                    i--;
+                }
+            }
+
+            // Dibujar todo
+            drawItems();
+            drawPlayer();
+
+            // Verificar si llegamos a 100 limones
+            if (score >= 100) {
+                isGameOver = true;
+                finalMessage.style.display = 'block'; // Mostrar el mensaje final
+                canvas.style.display = 'none'; // Ocultar el juego
+                document.getElementById('score').style.display = 'none'; // Ocultar puntaje
+                document.querySelector('h1').style.display = 'none'; // Ocultar título del juego
+            }
+
+            // Repetir el ciclo de animación
+            requestAnimationFrame(draw);
+        }
+
+        // Empezar a generar limones cada segundo
+        setInterval(spawnItem, 1000);
+
+        // Iniciar el juego
+        draw();
+    </script>
 </body>
-</html>      
+</html>
